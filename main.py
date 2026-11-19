@@ -1,0 +1,33 @@
+#!/usr/bin/env python3
+"""news-image-20261119: write the day's news image to the output directory.
+
+The entry image is a 1024x1024 PNG held in this repository (entry.png),
+a dense front-page infographic summing up Thursday 19 November 2026:
+the GTA VI worldwide launch plus 24 more stories across games, markets,
+the Fed, and the wider world. This program copies it, byte for byte, to
+$MAKEFUN_OUTPUT_DIR/entry.png. Standard library only, no network, no
+randomness, no clock: two runs write identical bytes.
+"""
+
+import os
+import shutil
+import sys
+
+IMAGE_NAME = "entry.png"
+
+
+def main() -> int:
+    here = os.path.dirname(os.path.abspath(__file__))
+    source = os.path.join(here, IMAGE_NAME)
+    out_dir = os.environ.get("MAKEFUN_OUTPUT_DIR", "/output")
+    target = os.path.join(out_dir, IMAGE_NAME)
+    if not os.path.isfile(source):
+        sys.stderr.write(f"news-image-20261119: {IMAGE_NAME} not found beside main.py\n")
+        return 1
+    os.makedirs(out_dir, exist_ok=True)
+    shutil.copyfile(source, target)
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
