@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# Copies the repo-held entry.png to $MAKEFUN_OUTPUT_DIR/entry.png,
+# byte for byte, after validating it is a real non-empty PNG.
 """news-image-20261119: write the day's news image to the output directory.
 
 The entry image is a 1024x1024 PNG held in this repository (entry.png),
@@ -15,6 +17,9 @@ import sys
 
 IMAGE_NAME = "entry.png"
 
+# The 8-byte signature every PNG file starts with.
+PNG_MAGIC = b"\x89PNG\r\n\x1a\n"
+
 
 def main() -> int:
     here = os.path.dirname(os.path.abspath(__file__))
@@ -23,6 +28,14 @@ def main() -> int:
     target = os.path.join(out_dir, IMAGE_NAME)
     if not os.path.isfile(source):
         sys.stderr.write(f"news-image-20261119: {IMAGE_NAME} not found beside main.py\n")
+        return 1
+    with open(source, "rb") as f:
+        header = f.read(len(PNG_MAGIC))
+    if header != PNG_MAGIC:
+        sys.stderr.write(
+            f"news-image-20261119: {IMAGE_NAME} is not a valid PNG "
+            "(missing or wrong magic header, or file is empty)\n"
+        )
         return 1
     os.makedirs(out_dir, exist_ok=True)
     shutil.copyfile(source, target)
